@@ -62,6 +62,11 @@ function Event() {
         </Box>
       </Box>
       <Box padding="20px">
+        <Card>
+          <CardContent>
+            <Typography>cool chart</Typography>
+          </CardContent>
+        </Card>
         <YourContracts filterEvent="UFC 265" />
       </Box>
     </Box>

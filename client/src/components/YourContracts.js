@@ -68,7 +68,7 @@ export default function YourContracts({ filterEvent }) {
               {rows.map((row) => {
                 if (!filterEvent || row.event === filterEvent) {
                   return (
-                    <TableRow key={row.id}>
+                    <TableRow key={`${row.id}_${row.expiration}`}>
                       {!filterEvent && (
                         <TableCell>
                           <Typography>{row.event}</Typography>

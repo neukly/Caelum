@@ -8,6 +8,8 @@ import {
   AppBar as MuiAppBar,
   IconButton as MuiIconButton,
   Toolbar,
+  Tooltip,
+  Zoom,
   Chip as MuiChip,
 } from "@material-ui/core";
 
@@ -55,12 +57,18 @@ const AppBarComponent = ({ onDrawerToggle }) => {
                 </IconButton>
               </Grid>
             </Hidden>
-            <Grid item xs />
             <Grid item>
-              <IconButton>
-                <HelpCircle />
-              </IconButton>
+              <Tooltip
+                TransitionComponent={Zoom}
+                title="New to sports betting?"
+                placement="right"
+              >
+                <IconButton>
+                  <HelpCircle />
+                </IconButton>
+              </Tooltip>
             </Grid>
+            <Grid item xs />
             <Grid item>
               <LanguagesDropdown />
             </Grid>

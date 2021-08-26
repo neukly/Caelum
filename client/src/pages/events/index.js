@@ -10,21 +10,24 @@ import {
   CardMedia as MuiCardMedia,
   Divider as MuiDivider,
   Grid,
-  Hidden,
   Typography as MuiTypography,
 } from "@material-ui/core";
 import YourContracts from "../../components/YourContracts";
 import Stats from "./Stats";
-import Carousel from "react-material-ui-carousel";
+import PopularSports from "./PopularSports";
+import FeaturedCarousel from "./Featured";
 
 import { green } from "@material-ui/core/colors";
 import { spacing } from "@material-ui/system";
+
+const Divider = styled(MuiDivider)(spacing);
+
+const Typography = styled(MuiTypography)(spacing);
 
 const Card = styled(MuiCard)(spacing);
 
 const TallCard = styled(Card)`
   height: 100%;
-  // border-bottom: 1px solid ${(props) => props.theme.palette.grey[300]};
 `;
 
 const CardContent = styled(MuiCardContent)`
@@ -34,14 +37,6 @@ const CardContent = styled(MuiCardContent)`
 const CardMedia = styled(MuiCardMedia)`
   height: 300px;
 `;
-
-const TitleMedia = styled(MuiCardMedia)`
-  height: 370px;
-`;
-
-const Divider = styled(MuiDivider)(spacing);
-
-const Typography = styled(MuiTypography)(spacing);
 
 function Event({ image, title, description }) {
   return (
@@ -94,64 +89,34 @@ function Events() {
   );
 }
 
-function Featured({ image, title, description }) {
-  return (
-    <>
-      <Grid container>
-        <Grid item xs={12} sm={9}>
-          <TitleMedia image={image} title="Title" />
-        </Grid>
-        <Grid item xs={12} sm={3}>
-          <TallCard>
-            <MuiCardContent>
-              <h3>{title}</h3>
-              <p>{description}</p>
-            </MuiCardContent>
-          </TallCard>
-        </Grid>
-      </Grid>
-    </>
-  );
-}
-
 function Title() {
   const spacing = 4;
   const ust = 12398;
   const weeklyBets = 2532490;
+
   return (
     <React.Fragment>
       <Helmet title="Events" />
 
       <Grid container spacing={spacing}>
         <Grid item xs={12}>
-          <Box mb={6}>
+          <Typography variant="h4" gutterBottom display="inline">
+            Featured
+          </Typography>
+          <Divider my={2} />
+          <FeaturedCarousel />
+        </Grid>
+
+        <Grid item container xs={12}>
+          <Grid item xs={12}>
             <Typography variant="h4" gutterBottom display="inline">
-              Featured
+              Popular Sports
             </Typography>
-
             <Divider my={2} />
-
-            <Carousel>
-              <Featured
-                image="/static/img/tourney/worlds1.jpeg"
-                title="New Company Logo"
-                description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus,
-                sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
-              />
-              <Featured
-                image="/static/img/tourney/preseason2.jpeg"
-                title="New Company Logo"
-                description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus,
-                sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
-              />
-              <Featured
-                image="/static/img/tourney/starcraft.jpeg"
-                title="New Company Logo"
-                description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus,
-                sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
-              />
-            </Carousel>
-          </Box>
+          </Grid>
+          <Grid item container xs={12} wrap="nowrap" spacing={2}>
+            <PopularSports />
+          </Grid>
         </Grid>
 
         <Grid item container xs={12} sm={6} direction="column">
