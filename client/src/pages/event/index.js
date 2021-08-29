@@ -9,12 +9,6 @@ import { Card as MuiCard, Box, Grid, CardMedia } from "@material-ui/core";
 import YourContracts from "../../components/YourContracts";
 import SuggestedEvents from "../events/SuggestedEvents";
 
-const StyledCarousel = styled(Carousel)`
-  .Carousel-button-28 {
-    top: 15% !important;
-  }
-`;
-
 const StyledImage = styled.img`
   position: absolute;
   border-radius: 4px;
@@ -85,15 +79,22 @@ function Event() {
 
       <StyledImage src="/static/img/tourney/ufcstadium.jpg" alt="something" />
 
-      <StyledCarousel
+      <Carousel
         timeout={0}
         autoPlay={false}
         navButtonsAlwaysVisible
         indicators={false}
+        navButtonsWrapperProps={{
+          // Move the buttons to the bottom. Unsetting top here to override default style.
+          style: {
+            bottom: "220px",
+            top: "unset",
+          },
+        }}
       >
         <Comparison data={data} />
         <Comparison data={data2} />
-      </StyledCarousel>
+      </Carousel>
 
       <Box paddingX="20px">
         <Grid container spacing={4}>

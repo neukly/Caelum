@@ -38,7 +38,7 @@ function FightStats({ team1, team2, stats }) {
           </TableHead>
           <TableBody>
             {stats.title.map((stat, index) => (
-              <TableRow>
+              <TableRow key={`${stat.team1}-${index}`}>
                 <TableCell component="th" scope="row">
                   {stat}
                 </TableCell>
