@@ -1,59 +1,104 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components/macro";
 
 import { Helmet } from "react-helmet-async";
+import FightStats from "./FightStats";
 
 import {
-  Card,
+  Card as MuiCard,
   CardContent,
   Box,
-  Divider as MuiDivider,
   Grid,
+  Hidden,
   Typography as MuiTypography,
+  CardMedia,
 } from "@material-ui/core";
 import YourContracts from "../../components/YourContracts";
 
 import { spacing } from "@material-ui/system";
 
 const StyledImage = styled.img`
-  color: orange;
   border-radius: 4px;
   height: 300px;
   object-fit: cover;
   object-position: 50% 20%;
   width: 100%;
-  margin-bottom: 80px;
+`;
+
+const StyledPerson = styled.img`
+  height: 300px;
+  transition: all 0.5s;
+  opacity: ${(props) => (props.isVisible ? "100%" : "0%")};
+`;
+
+const Card = styled(MuiCard)(spacing);
+
+const StyledCardMedia = styled(CardMedia)`
+  border: 0;
 `;
 
 const Typography = styled(MuiTypography)(spacing);
 
 function Event() {
+  const [isVisible, setIsVisible] = useState(false);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setIsVisible(true);
+    }, 100);
+  }, []);
+
   return (
     <Box position="relative">
       <Helmet title="Events" />
 
-      <StyledImage src="/static/img/tourney/ufcstadium.jpg" alt="something" />
+      <Box position="relative" overflow="hidden" mb={18}>
+        <StyledImage src="/static/img/tourney/ufcstadium.jpg" alt="something" />
+        <Hidden xsDown>
+          <Box position="absolute" top="50px" left="10%">
+            <StyledPerson
+              isVisible={isVisible}
+              src="/static/img/tourney/Lewis.png"
+              alt="lewis"
+            />
+          </Box>
+          <Box position="absolute" top="50px" right="10%">
+            <StyledPerson
+              isVisible={isVisible}
+              src="/static/img/tourney/Gane.png"
+              alt="lewis"
+            />
+          </Box>
+        </Hidden>
+      </Box>
+
       <Box position="absolute" top={275} left="50%">
         <Box position="relative" left="-50%" width="50vw">
           <Card>
             <CardContent>
               <Grid container justify="space-between" alignItems="flex-end">
                 <Grid item xs={2}>
+                  <Typography variant="body1" align="center">
+                    Derrick
+                  </Typography>
                   <Typography variant="h4" align="center">
-                    -299
+                    Lewis
                   </Typography>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1" align="center">
-                    UFC 265
+                    August 7th, 9:00PM
                   </Typography>
                   <Typography variant="h3" align="center">
-                    Lewis vs Gane
+                    UFC 265
                   </Typography>
                 </Grid>
                 <Grid item xs={2}>
+                  <Typography variant="body1" align="center">
+                    Ciryl
+                  </Typography>
                   <Typography variant="h4" align="center">
-                    200
+                    Gane
                   </Typography>
                 </Grid>
               </Grid>
@@ -61,13 +106,25 @@ function Event() {
           </Card>
         </Box>
       </Box>
+
       <Box padding="20px">
-        <Card>
-          <CardContent>
-            <Typography>cool chart</Typography>
-          </CardContent>
+        <Grid container spacing={4}>
+          <Grid item xs={12} sm={6} lg={4}>
+            <FightStats />
+          </Grid>
+          <Grid item></Grid>
+        </Grid>
+
+        <Card my={8}>
+          <StyledCardMedia
+            component="iframe"
+            height="400"
+            image="https://www.youtube.com/embed/VbYU54MYfF0"
+            title="Contemplative Reptile"
+          ></StyledCardMedia>
         </Card>
-        <YourContracts filterEvent="UFC 265" />
+
+        <YourContracts />
       </Box>
     </Box>
   );

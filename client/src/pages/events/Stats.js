@@ -19,7 +19,6 @@ const Typography = styled(MuiTypography)(spacing);
 
 const CardContent = styled(MuiCardContent)`
   position: relative;
-  // border-bottom: 1px solid ${(props) => props.theme.palette.grey[300]};
 
   &:last-child {
     padding-bottom: ${(props) => props.theme.spacing(4)}px;

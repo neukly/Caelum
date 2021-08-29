@@ -17,9 +17,10 @@ const Card = styled(MuiCard)(spacing);
 const TallCard = styled(Card)`
   height: 100%;
   position: relative;
-  transition: all 1s;
+  transition: all 0.5s;
+  border-bottom: 1px solid ${(props) => props.theme.palette.grey[300]};
   &:hover {
-    h4 {
+    h3 {
       visibility: visible;
     }
   }
@@ -29,15 +30,14 @@ const PopularCardMedia = styled(MuiCardMedia)`
   height: 150px;
   width: 100%;
   transition: all 0.5s;
+  filter: brightness(80%);
   &:hover {
-    filter: brightness(50%);
+    filter: brightness(40%) blur(1px);
     transform: scale(1.2);
   }
 `;
 
-const PopularTypography = styled(Typography)`
-  visibility: hidden;
-  text-align: center;
+const StyledTypography = styled(Typography)`
   pointer-events: none;
   position: relative;
   left: -50%;
@@ -75,7 +75,9 @@ function PopularSports() {
           <Grid item xs={4}>
             <TallCard>
               <Box position="absolute" left="50%" bottom="40%">
-                <PopularTypography variant="h4">{title}</PopularTypography>
+                <StyledTypography textOverflow="ellipsis" noWrap variant="h3">
+                  {title}
+                </StyledTypography>
               </Box>
               <PopularCardMedia image={img} position="absolute" />
             </TallCard>

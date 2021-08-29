@@ -7,7 +7,6 @@ import {
   Box,
   Card as MuiCard,
   CardContent as MuiCardContent,
-  CardMedia as MuiCardMedia,
   Divider as MuiDivider,
   Grid,
   Typography as MuiTypography,
@@ -16,6 +15,7 @@ import YourContracts from "../../components/YourContracts";
 import Stats from "./Stats";
 import PopularSports from "./PopularSports";
 import FeaturedCarousel from "./Featured";
+import SuggestedEvents from "./SuggestedEvents";
 
 import { green } from "@material-ui/core/colors";
 import { spacing } from "@material-ui/system";
@@ -30,67 +30,7 @@ const TallCard = styled(Card)`
   height: 100%;
 `;
 
-const CardContent = styled(MuiCardContent)`
-  // border-bottom: 1px solid ${(props) => props.theme.palette.grey[300]};
-`;
-
-const CardMedia = styled(MuiCardMedia)`
-  height: 300px;
-`;
-
-function Event({ image, title, description }) {
-  return (
-    <Card mb={6}>
-      {image ? <CardMedia image={image} title="Contemplative Reptile" /> : null}
-      <CardContent>
-        <Typography gutterBottom variant="h5" component="h2">
-          {title}
-        </Typography>
-
-        <Typography component="p">{description}</Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
-function Events() {
-  return (
-    <>
-      <Typography variant="h4" gutterBottom display="inline">
-        Events we think you'll like
-      </Typography>
-
-      <Divider my={2} />
-
-      <Grid container spacing={2}>
-        <Grid item xs={12} sm={4}>
-          <Event
-            title="Refactor backend templates"
-            description="Curabitur ligula sapien, tincidunt non, euismod vitae, posuere imperdiet, leo. Maecenas malesuada. Praesent congue erat at massa."
-            image="/static/img/tourney/ufc2.jpeg"
-          />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Event
-            title="Upgrade to latest Maps API"
-            description="Nam pretium turpis et arcu. Duis arcu tortor, suscipit eget, imperdiet nec, imperdiet iaculis, ipsum. Sed aliquam ultrices mauris."
-            image="/static/img/tourney/csgo1.webp"
-          />
-        </Grid>
-        <Grid item xs={12} sm={4}>
-          <Event
-            title="New company logo"
-            description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus, sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
-            image="/static/img/tourney/evo2.png"
-          />
-        </Grid>
-      </Grid>
-    </>
-  );
-}
-
 function Title() {
-  const spacing = 4;
   const ust = 12398;
   const weeklyBets = 2532490;
 
@@ -98,7 +38,7 @@ function Title() {
     <React.Fragment>
       <Helmet title="Events" />
 
-      <Grid container spacing={spacing}>
+      <Grid container spacing={8}>
         <Grid item xs={12}>
           <Typography variant="h4" gutterBottom display="inline">
             Featured
@@ -121,7 +61,7 @@ function Title() {
 
         <Grid item container xs={12} sm={6} direction="column">
           <Grid item>
-            <Box mb={spacing}>
+            <Box mb={4}>
               <Stats
                 title="Weekly Bets Placed"
                 amount={weeklyBets.toLocaleString()}
@@ -163,7 +103,7 @@ function Title() {
           <YourContracts />
         </Grid>
         <Grid item xs={12}>
-          <Events />
+          <SuggestedEvents />
         </Grid>
       </Grid>
     </React.Fragment>
