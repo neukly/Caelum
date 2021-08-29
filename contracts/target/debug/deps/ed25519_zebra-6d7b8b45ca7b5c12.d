@@ -1,0 +1,12 @@
+/home/drees/sc101/sportsbet/target/debug/deps/ed25519_zebra-6d7b8b45ca7b5c12.rmeta: /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/lib.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/batch.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/error.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signature.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signing_key.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/verification_key.rs
+
+/home/drees/sc101/sportsbet/target/debug/deps/libed25519_zebra-6d7b8b45ca7b5c12.rlib: /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/lib.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/batch.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/error.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signature.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signing_key.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/verification_key.rs
+
+/home/drees/sc101/sportsbet/target/debug/deps/ed25519_zebra-6d7b8b45ca7b5c12.d: /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/lib.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/batch.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/error.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signature.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signing_key.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/verification_key.rs
+
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/lib.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/batch.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/error.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signature.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/signing_key.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/ed25519-zebra-2.2.0/src/verification_key.rs:
