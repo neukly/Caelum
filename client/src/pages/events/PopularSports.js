@@ -1,5 +1,6 @@
 import React from "react";
 import styled from "styled-components/macro";
+import { Link } from "react-router-dom";
 
 import {
   Box,
@@ -12,15 +13,21 @@ import { spacing } from "@material-ui/system";
 
 const Typography = styled(MuiTypography)(spacing);
 
-const Card = styled(MuiCard)(spacing);
+const StyledLink = styled(Link)`
+  color: ${(props) => props.theme.palette.text.primary};
+  text-decoration: ${(props) => (props.title ? "none" : "")};
+`;
 
+const Card = styled(MuiCard)(spacing);
 const TallCard = styled(Card)`
   height: 100%;
   position: relative;
-  transition: all 0.5s;
+  transition: all 0.3s ease-out;
   border-bottom: 1px solid ${(props) => props.theme.palette.grey[300]};
   &:hover {
     h3 {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
       visibility: visible;
     }
   }
@@ -29,11 +36,11 @@ const TallCard = styled(Card)`
 const PopularCardMedia = styled(MuiCardMedia)`
   height: 150px;
   width: 100%;
-  transition: all 0.5s;
-  filter: brightness(80%);
+  transition: all 0.3s ease-out;
+  filter: brightness(70%);
   &:hover {
-    filter: brightness(40%) blur(1px);
-    transform: scale(1.2);
+    filter: brightness(30%);
+    transform: scale(1.1);
   }
 `;
 
@@ -73,14 +80,16 @@ function PopularSports() {
       {popularSports.map(({ title, img }) => {
         return (
           <Grid item xs={4}>
-            <TallCard>
-              <Box position="absolute" left="50%" bottom="40%">
-                <StyledTypography textOverflow="ellipsis" noWrap variant="h3">
-                  {title}
-                </StyledTypography>
-              </Box>
-              <PopularCardMedia image={img} position="absolute" />
-            </TallCard>
+            <StyledLink title to="/events/ufc256">
+              <TallCard>
+                <Box position="absolute" left="50%" bottom="40%">
+                  <StyledTypography textOverflow="ellipsis" noWrap variant="h3">
+                    {title}
+                  </StyledTypography>
+                </Box>
+                <PopularCardMedia image={img} position="absolute" />
+              </TallCard>
+            </StyledLink>
           </Grid>
         );
       })}

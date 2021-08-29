@@ -21,7 +21,7 @@ const Card = styled(MuiCard)(spacing);
 const Typography = styled(MuiTypography)(spacing);
 const Divider = styled(MuiDivider)(spacing);
 
-export default function YourContracts({ filterEvent }) {
+export default function YourContracts({ title, filterEvent }) {
   // Data
   let id = 0;
   function createData(event, team1, team2, odds, payout, expiration) {
@@ -47,7 +47,7 @@ export default function YourContracts({ filterEvent }) {
   return (
     <Box my={4}>
       <Typography variant="h4" gutterBottom display="inline">
-        {filterEvent ? filterEvent : "Your Contracts"}
+        {title}
       </Typography>
 
       <Divider my={2} />

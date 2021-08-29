@@ -1,130 +1,108 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import styled from "styled-components/macro";
+import Carousel from "react-material-ui-carousel";
 
 import { Helmet } from "react-helmet-async";
-import FightStats from "./FightStats";
+import Comparison from "./Comparison";
 
-import {
-  Card as MuiCard,
-  CardContent,
-  Box,
-  Grid,
-  Hidden,
-  Typography as MuiTypography,
-  CardMedia,
-} from "@material-ui/core";
+import { Card as MuiCard, Box, Grid, CardMedia } from "@material-ui/core";
 import YourContracts from "../../components/YourContracts";
+import SuggestedEvents from "../events/SuggestedEvents";
 
-import { spacing } from "@material-ui/system";
+const StyledCarousel = styled(Carousel)`
+  .Carousel-button-28 {
+    top: 15% !important;
+  }
+`;
 
 const StyledImage = styled.img`
+  position: absolute;
   border-radius: 4px;
-  height: 300px;
+  height: 280px;
   object-fit: cover;
   object-position: 50% 20%;
   width: 100%;
 `;
 
-const StyledPerson = styled.img`
-  height: 300px;
-  transition: all 0.5s;
-  opacity: ${(props) => (props.isVisible ? "100%" : "0%")};
-`;
+const data = {
+  description: "Heavyweight Interim Title Bout",
+  video: "https://www.youtube.com/embed/VbYU54MYfF0",
+  team1: {
+    image: "/static/img/tourney/Lewis.png",
+    firstName: "Derrick",
+    lastName: "Lewis",
+  },
+  team2: {
+    image: "/static/img/tourney/Gane.png",
+    firstName: "Cyril",
+    lastName: "Gane",
+  },
+  stats: {
+    title: [
+      "Win/Loss/Draw",
+      "Fight Win Streak",
+      "Wins By Knockout",
+      "Wins By Submission",
+      "Striking Accuracy",
+      "Grappling Accuracy",
+    ],
+    team1: ["25-8-0", 4, 20, 1, "50%", "27%"],
+    team2: ["9-0-0", 9, 3, 3, "55%", "22%"],
+  },
+};
 
-const Card = styled(MuiCard)(spacing);
-
-const StyledCardMedia = styled(CardMedia)`
-  border: 0;
-`;
-
-const Typography = styled(MuiTypography)(spacing);
+const data2 = {
+  description: "Bantamweight Bout",
+  video: "https://www.youtube.com/embed/zvSYxU3DASA",
+  team1: {
+    image: "/static/img/tourney/aldo.png",
+    firstName: "Jose",
+    lastName: "Aldo",
+  },
+  team2: {
+    image: "/static/img/tourney/munhoz.png",
+    firstName: "Pedro",
+    lastName: "Munhoz",
+  },
+  stats: {
+    title: [
+      "Win/Loss/Draw",
+      "Fight Win Streak",
+      "Wins By Knockout",
+      "Wins By Submission",
+      "Striking Accuracy",
+      "Grappling Accuracy",
+    ],
+    team1: ["30-7-0", 2, 17, 1, "45%", "57%"],
+    team2: ["19-6-0", 1, 5, 8, "44%", "21%"],
+  },
+};
 
 function Event() {
-  const [isVisible, setIsVisible] = useState(false);
-
-  useEffect(() => {
-    setTimeout(() => {
-      setIsVisible(true);
-    }, 100);
-  }, []);
-
   return (
     <Box position="relative">
       <Helmet title="Events" />
 
-      <Box position="relative" overflow="hidden" mb={18}>
-        <StyledImage src="/static/img/tourney/ufcstadium.jpg" alt="something" />
-        <Hidden xsDown>
-          <Box position="absolute" top="50px" left="10%">
-            <StyledPerson
-              isVisible={isVisible}
-              src="/static/img/tourney/Lewis.png"
-              alt="lewis"
-            />
-          </Box>
-          <Box position="absolute" top="50px" right="10%">
-            <StyledPerson
-              isVisible={isVisible}
-              src="/static/img/tourney/Gane.png"
-              alt="lewis"
-            />
-          </Box>
-        </Hidden>
-      </Box>
+      <StyledImage src="/static/img/tourney/ufcstadium.jpg" alt="something" />
 
-      <Box position="absolute" top={275} left="50%">
-        <Box position="relative" left="-50%" width="50vw">
-          <Card>
-            <CardContent>
-              <Grid container justify="space-between" alignItems="flex-end">
-                <Grid item xs={2}>
-                  <Typography variant="body1" align="center">
-                    Derrick
-                  </Typography>
-                  <Typography variant="h4" align="center">
-                    Lewis
-                  </Typography>
-                </Grid>
-                <Grid item xs={6}>
-                  <Typography variant="body1" align="center">
-                    August 7th, 9:00PM
-                  </Typography>
-                  <Typography variant="h3" align="center">
-                    UFC 265
-                  </Typography>
-                </Grid>
-                <Grid item xs={2}>
-                  <Typography variant="body1" align="center">
-                    Ciryl
-                  </Typography>
-                  <Typography variant="h4" align="center">
-                    Gane
-                  </Typography>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
-        </Box>
-      </Box>
+      <StyledCarousel
+        timeout={0}
+        autoPlay={false}
+        navButtonsAlwaysVisible
+        indicators={false}
+      >
+        <Comparison data={data} />
+        <Comparison data={data2} />
+      </StyledCarousel>
 
-      <Box padding="20px">
+      <Box paddingX="20px">
         <Grid container spacing={4}>
-          <Grid item xs={12} sm={6} lg={4}>
-            <FightStats />
+          <Grid item xs={12}>
+            <YourContracts title="Available Contracts" />
           </Grid>
-          <Grid item></Grid>
         </Grid>
 
-        <Card my={8}>
-          <StyledCardMedia
-            component="iframe"
-            height="400"
-            image="https://www.youtube.com/embed/VbYU54MYfF0"
-            title="Contemplative Reptile"
-          ></StyledCardMedia>
-        </Card>
-
-        <YourContracts />
+        <SuggestedEvents />
       </Box>
     </Box>
   );

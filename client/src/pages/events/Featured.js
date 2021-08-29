@@ -46,19 +46,19 @@ function FeaturedCarousel() {
       <Carousel stopAutoPlayOnHover={false}>
         <Featured
           image="/static/img/tourney/worlds1.jpeg"
-          title="New Company Logo"
+          title="League of Legends: Worlds"
           description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus,
                 sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
         />
         <Featured
           image="/static/img/tourney/preseason2.jpeg"
-          title="New Company Logo"
+          title="NFL Preseason"
           description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus,
                 sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
         />
         <Featured
           image="/static/img/tourney/starcraft.jpeg"
-          title="New Company Logo"
+          title="Starcraft II: World Championship Series"
           description="Etiam rhoncus. Maecenas tempus, tellus eget condimentum rhoncus,
                 sem quam semper libero, sit amet adipiscing sem neque sed ipsum."
         />
