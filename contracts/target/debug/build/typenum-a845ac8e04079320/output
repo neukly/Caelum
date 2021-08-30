@@ -1,2 +1,0 @@
-cargo:rustc-env=TYPENUM_BUILD_CONSTS=/home/drees/sc101/sc101/target/debug/build/typenum-a845ac8e04079320/out/consts.rs
-cargo:rustc-env=TYPENUM_BUILD_OP=/home/drees/sc101/sc101/target/debug/build/typenum-a845ac8e04079320/out/op.rs
