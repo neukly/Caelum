@@ -86,6 +86,9 @@ pub fn take_bet(deps: DepsMut, info: MessageInfo, host: String )
     // fetch bet from host
     let data = BETS.load(deps.storage, checked.clone())?;
 
+    // check that bet is Unmatched
+    if data.matched_bet != None { return Err(ContractError::MultipleMatches {})}
+
     // get funds attached to MSG
     let coins = info.funds.clone();
     match coins.clone().len() {
@@ -321,6 +324,16 @@ mod tests {
         test_vec.push(test_data);
         assert_eq!(test_vec,value.bets);
 
+        // Match bet twice (error)
+        let info = mock_info("charlie", &coins(200, "token".to_string()));
+        let msg = ExecuteMsg::TakeBet {
+            host: "bob".to_string()
+        };
+        let res = execute(deps.as_mut(), mock_env(), info, msg);
+        match res {
+            Ok(_m) => panic!("Bet matched twice should throw error"),
+            Err(_e) => ()
+        };
     }
 
 }

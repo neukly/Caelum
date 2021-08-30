@@ -19,7 +19,10 @@ pub enum ContractError {
     Unmatchedfunds {},
 
     #[error("Contract must have an admin")]
-    Noadmin {}
+    Noadmin {},
+
+    #[error("A bet may only be matched by one party")]
+    MultipleMatches {}
     // Add any other custom errors you like here.
     // Look at https://docs.rs/thiserror/1.0.21/thiserror/ for details.
 }
