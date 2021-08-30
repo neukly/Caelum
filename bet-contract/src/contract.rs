@@ -43,11 +43,22 @@ pub fn calc_match_amount(wager: Uint128, &odds: &i16) -> Uint128 {
     // helper function for execute functions
     // for a given wager and odds,
     // find the amount needed to match
-    let factor = {
-        if odds < 0 { 100f64/odds.abs() as f64 }
-        else { (100-odds) as f64 /100f64 }
+    let payout = if odds < 0 {
+        let factor = wager.u128() / odds.abs() as u128;
+        100 as u128 * factor
+    } else {
+        let factor = wager.u128() / 100 as u128;
+        odds as u128 * factor
     };
-    Uint128::new((factor as f64 * wager.u128() as f64) as u128)
+    Uint128::new(payout as u128)
+
+    /*
+    let factor = {
+        if odds < 0 { 100 /odds.abs() }
+        else { (100-odds)/100 }
+    };
+    Uint128::new((factor * wager.u128()) as u128)
+    */
 }
 pub fn propose_bet(deps: DepsMut, info: MessageInfo, team: String, odds: i16)
 -> Result<Response, ContractError> {
