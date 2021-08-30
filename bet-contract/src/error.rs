@@ -16,7 +16,10 @@ pub enum ContractError {
     Multiplefunds {},
 
     #[error("Funds do not match")]
-    Unmatchedfunds {}
+    Unmatchedfunds {},
+
+    #[error("Contract must have an admin")]
+    Noadmin {}
     // Add any other custom errors you like here.
     // Look at https://docs.rs/thiserror/1.0.21/thiserror/ for details.
 }

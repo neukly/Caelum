@@ -1,10 +1,12 @@
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{Uint128, Coin};
-use cosmwasm_std::{DepsMut, Env, MessageInfo, Response};
-
+use cosmwasm_std::{Deps, DepsMut, Env, Addr, MessageInfo};
+use cosmwasm_std::{Response, StdResult, StdError};
+use cosmwasm_std::{to_binary, Binary, Order};
 use crate::error::ContractError;
-use crate::msg::{InstantiateMsg, ExecuteMsg};
+use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg};
+use crate::msg::{AdminResponse, BetsResponse};
 use crate::state::{STATE, BETS, ADMIN, State, Data};
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -64,7 +66,6 @@ pub fn propose_bet(deps: DepsMut, info: MessageInfo, team: String, odds: i16)
         1 => Ok(coins.clone()),
         _ => Err(ContractError::Multiplefunds {}),
     };
-    //println!("{:?}",coins[0]);
 
     let data = Data {
         host: info.sender.clone(),
@@ -105,8 +106,6 @@ pub fn take_bet(deps: DepsMut, info: MessageInfo, host: String )
     };
 
     // reject if funds do not match wager
-    println!("{:?}",data.match_amount);
-    println!("{:?}",coins[0]);
     if data.match_amount != coins[0] {
         return Err(ContractError::Unmatchedfunds {})
     }
@@ -136,53 +135,87 @@ pub fn settle_up(deps: DepsMut, info: MessageInfo)
     drop(info);
     Ok(Response::new().add_attribute("method", "settle_up"))
 }
-/*
+
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn query(deps: Deps, _env: Env, msg: QueryMsg ) -> StdResult<Binary> {
-    matched_bet msg {
+    match msg {
         QueryMsg::GetBets {} => to_binary(&query_bets(deps)?),
         QueryMsg::GetAdmin {} => to_binary(&query_admin(deps)?),
     }
 }
+
 fn query_bets(deps: Deps) -> Result<BetsResponse, StdError> {
     let all: StdResult<Vec<_>> = BETS
         .range(deps.storage, None, None, Order::Ascending)
         .collect();
-    Ok(BetsResponse{ bets: all })
+    let mut results: Vec<Data> = Vec::new();
+    for (_key, data) in all? {
+        results.push(data)
+    };
+    /*
+    let res = match all {
+        Ok(bets) => {
+            let mut results: Vec<Data> = Vec::new();
+            for (_key, data) in bets {
+                results.push(data)
+            };
+            Some(results)
+        },
+        Err(e) => None
+    };
+    */
+    return Ok(BetsResponse{ bets: results})
+
+
 }
 fn query_admin(deps: Deps ) -> Result<AdminResponse, StdError> {
     let administrator = ADMIN.get(deps)?;
-    let admin = matched_bet administrator {
+    let admin = match administrator {
         Some(a) => a,
         None => return Ok(AdminResponse{admin: Addr::unchecked("")}),
     };
     Ok(AdminResponse{ admin: admin })
 }
-*/
+
 #[cfg(test)]
 mod tests {
     use super::*;
     use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
     use cosmwasm_std::{coins, Coin, Addr};
     use cosmwasm_std::Uint128;
+    use cosmwasm_std::from_binary;
 
     #[test]
-    fn proper_initialization() {
+    fn test_initialize() {
         let mut deps = mock_dependencies(&[]);
+        let info = mock_info("creator", &coins(1000, "earth"));
         let msg = InstantiateMsg {
             team1: "Saints".to_string(),
             team2: "Falcons".to_string(),
             oracle: "Oracle Addr".to_string(),
         };
-        let info = mock_info("creator", &coins(1000, "earth"));
         let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
         assert_eq!(0, res.messages.len());
+
+        // query administrator
+        let msg = QueryMsg::GetAdmin {};
+        let res = query(deps.as_ref(), mock_env(), msg).unwrap();
+        let value: AdminResponse = from_binary(&res).unwrap();
+        assert_eq!(Addr::unchecked("creator"),value.admin);
+
+        // query BETS
+        let msg = QueryMsg::GetBets {};
+        let res = query(deps.as_ref(), mock_env(), msg).unwrap();
+        let value: BetsResponse = from_binary(&res).unwrap();
+        let empty: Vec<Data> = Vec::new();
+        assert_eq!(empty,value.bets);
     }
 
     #[test]
-    fn propose_bet() {
+    fn test_propose() {
         let mut deps = mock_dependencies(&[]);
-        proper_initialization();
+        test_initialize();
+
         // Propose a bet
         let info = mock_info("bob", &coins(300, "token".to_string()));
         let msg = ExecuteMsg::ProposeBet {
@@ -190,8 +223,12 @@ mod tests {
             odds: -150,
         };
         let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
-        // Check that bet was placed
-        let data1 = Data {
+
+        // Query BETS
+        let msg = QueryMsg::GetBets {};
+        let res = query(deps.as_ref(), mock_env(), msg).unwrap();
+        let value: BetsResponse = from_binary(&res).unwrap();
+        let test_data = Data {
             host: Addr::unchecked("bob"),
             team: "Saints".to_string(),
             odds: -150,
@@ -202,14 +239,17 @@ mod tests {
             },
             matched_bet: None,
         };
-        let data2 = BETS.load(&deps.storage, Addr::unchecked("bob"));
-        assert_eq!(data1,data2.unwrap());
+        let mut test_vec: Vec<Data> = Vec::new();
+        test_vec.push(test_data);
+        assert_eq!(test_vec,value.bets);
+
     }
 
     #[test]
     fn take_bet() {
         let mut deps = mock_dependencies(&[]);
-        proper_initialization();
+        test_initialize();
+
         // Propose a bet
         let info = mock_info("bob", &coins(300, "token".to_string()));
         let msg = ExecuteMsg::ProposeBet {
@@ -225,20 +265,24 @@ mod tests {
         };
         let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
 
-        // Check data
-        let data1 = Data {
+        // Query BETS
+        let msg = QueryMsg::GetBets {};
+        let res = query(deps.as_ref(), mock_env(), msg).unwrap();
+        let value: BetsResponse = from_binary(&res).unwrap();
+        let test_data = Data {
             host: Addr::unchecked("bob"),
             team: "Saints".to_string(),
             odds: -150,
             amount: Coin{ amount: Uint128::new(300), denom: "token".to_string()},
             match_amount: Coin {
-                amount: Uint128::new(200),
+                amount: Uint128::new(200), // should be 150
                 denom: "token".to_string()
             },
             matched_bet: Some(Addr::unchecked("alice")),
         };
-        let data2 = BETS.load(&deps.storage, Addr::unchecked("bob"));
-        assert_eq!(data1,data2.unwrap());
+        let mut test_vec: Vec<Data> = Vec::new();
+        test_vec.push(test_data);
+        assert_eq!(test_vec,value.bets);
 
     }
 
