@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components/macro";
 
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import {
   Card as MuiCard,
   CardContent,
@@ -32,6 +33,7 @@ const Typography = styled(MuiTypography)(spacing);
 // maybe add type checking later for this giant obj and rest of app
 function Event({ data }) {
   const [isVisible, setIsVisible] = useState(false);
+  const isXSScreen = useMediaQuery((theme) => theme.breakpoints.down("xs"));
 
   useEffect(() => {
     setTimeout(() => {
@@ -63,18 +65,25 @@ function Event({ data }) {
       </Box>
 
       <Box position="absolute" top={250} left="50%">
-        {/* TODO this title does not scale with smaller screens XS and some MD */}
-        <Box position="relative" left="-50%" width="45vw">
+        {/* TODO this title does not scale with longer names */}
+        <Box position="relative" left="-50%" minWidth="500px">
           <Card>
             <CardContent>
-              <Grid container justify="space-between" alignItems="flex-end">
+              <Grid
+                container
+                justify="space-between"
+                alignItems={isXSScreen ? "center" : "flex-end"}
+                direction={isXSScreen ? "column" : "row"}
+              >
                 <Grid item xs={2}>
-                  <Typography variant="body1" align="center">
-                    {data.team1.firstName}
-                  </Typography>
-                  <Typography variant="h4" align="center">
-                    {data.team1.lastName}
-                  </Typography>
+                  <Hidden xsDown>
+                    <Typography variant="body1" align="center">
+                      {data.team1.firstName}
+                    </Typography>
+                    <Typography variant="h4" align="center">
+                      {data.team1.lastName}
+                    </Typography>
+                  </Hidden>
                 </Grid>
                 <Grid item xs={6}>
                   <Typography variant="body1" align="center">
@@ -83,17 +92,19 @@ function Event({ data }) {
                   <Typography variant="h3" align="center">
                     UFC 265
                   </Typography>
-                  <Typography variant="body2" align="center">
+                  <Typography variant="body2" align="center" noWrap>
                     {data.description}
                   </Typography>
                 </Grid>
                 <Grid item xs={2}>
-                  <Typography variant="body1" align="center">
-                    {data.team2.firstName}
-                  </Typography>
-                  <Typography variant="h4" align="center">
-                    {data.team2.lastName}
-                  </Typography>
+                  <Hidden xsDown>
+                    <Typography variant="body1" align="center">
+                      {data.team2.firstName}
+                    </Typography>
+                    <Typography variant="h4" align="center">
+                      {data.team2.lastName}
+                    </Typography>
+                  </Hidden>
                 </Grid>
               </Grid>
             </CardContent>
@@ -111,14 +122,16 @@ function Event({ data }) {
             />
           </Grid>
           <Grid item xs={12} sm={6} lg={7}>
-            <Card>
-              <StyledCardMedia
-                component="iframe"
-                height="330"
-                image={data.video}
-                title="Contemplative Reptile"
-              ></StyledCardMedia>
-            </Card>
+            <Hidden xsDown>
+              <Card>
+                <StyledCardMedia
+                  component="iframe"
+                  height="335"
+                  image={data.video}
+                  title="Contemplative Reptile"
+                ></StyledCardMedia>
+              </Card>
+            </Hidden>
           </Grid>
         </Grid>
       </Box>
