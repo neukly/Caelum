@@ -1,0 +1,12 @@
+/home/drees/sc101/sportsbet/target/debug/deps/proc_macro2-72dd94e62781faf3.rmeta: /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/lib.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/marker.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/parse.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/detection.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/fallback.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/wrapper.rs
+
+/home/drees/sc101/sportsbet/target/debug/deps/libproc_macro2-72dd94e62781faf3.rlib: /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/lib.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/marker.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/parse.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/detection.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/fallback.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/wrapper.rs
+
+/home/drees/sc101/sportsbet/target/debug/deps/proc_macro2-72dd94e62781faf3.d: /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/lib.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/marker.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/parse.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/detection.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/fallback.rs /home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/wrapper.rs
+
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/lib.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/marker.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/parse.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/detection.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/fallback.rs:
+/home/drees/.cargo/registry/src/github.com-1ecc6299db9ec823/proc-macro2-1.0.28/src/wrapper.rs:
