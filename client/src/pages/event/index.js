@@ -5,6 +5,7 @@ import Carousel from "react-material-ui-carousel";
 import { Helmet } from "react-helmet-async";
 import Comparison from "./Comparison";
 
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Card as MuiCard, Box, Grid, CardMedia } from "@material-ui/core";
 import YourContracts from "../../components/YourContracts";
 import SuggestedEvents from "../events/SuggestedEvents";
@@ -73,6 +74,8 @@ const data2 = {
 };
 
 function Event() {
+  const isXSScreen = useMediaQuery((theme) => theme.breakpoints.down("xs"));
+
   return (
     <Box position="relative">
       <Helmet title="Events" />
@@ -82,7 +85,7 @@ function Event() {
       <Carousel
         timeout={0}
         autoPlay={false}
-        navButtonsAlwaysVisible
+        navButtonsAlwaysVisible={!isXSScreen}
         indicators={false}
         navButtonsWrapperProps={{
           // Move the buttons to the bottom. Unsetting top here to override default style.
