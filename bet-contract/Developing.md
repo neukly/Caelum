@@ -11,52 +11,55 @@ version of Rust already (eg. 1.51.0+).
 # compile contract and run unit tests
 cargo test
 
-# intialize localterra (separate shell)
-cd localterra && sudo docker-compose up
-
-# setup test account
-sudo terrad keys add test1 --recover
-
-# Use this mnemonic:
-# satisfy adjust timber high purchase tuition stool faith fine install that you unaware feed domain license impose boss human eager hat rent enjoy dawn
-
-# set PASSWORD "terra"
-# note ADDRESS1
-# terra1dcegyrekltswvyy0xy69ydgxn9x8x32zdtapd8
-
-# setup oracle
-sudo terrad keys add oracle
-
-#note ORACLE_ADDRESS: terra1fd0kaldhtlxpq624znwzqst98247q7wxuw6h29
-
 # run rust-optimized cosmwasm compiler
 sudo docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
   cosmwasm/rust-optimizer:0.11.4
 
+# intialize localterra (separate shell)
+cd localterra && sudo docker-compose up
+
+# setup test account
+# use nmemonics from https://github.com/terra-money/localterra
+sudo terrad keys add test1 --recover
+sudo terrad keys add test2 --recover
+sudo terrad keys add oracle
+
+# set PASSWORD "terra"
+# note addresses
+# test1
+# terra1dcegyrekltswvyy0xy69ydgxn9x8x32zdtapd8
+# test2
+# terra17lmam6zguazs5q5u6z5mmx76uj63gldnse2pdp
+# oracle
+# terra1fd0kaldhtlxpq624znwzqst98247q7wxuw6h29
+
 # upload to localterra (from repo)
 sudo terrad tx wasm store ./artifacts/sc101.wasm --from test1 --chain-id=localterra --gas=auto --fees=100000uluna --broadcast-mode=block
 
-# Note CODE_ID (3)
+# Note CODE_ID from output (4)
 
 # verify upload
-terrad query wasm code CODE_ID
+terrad query wasm code 4
 
 # instantiate contract
-sudo terrad tx wasm instantiate CODE_ID '{"team1":"Saints","team2":"Falcons","oracle":"ORACLE_ADDR"}' --from test1 --chain-id=localterra --fees=10000uluna --gas=auto --broadcast-mode=block
+sudo terrad tx wasm instantiate CODE_ID '{"team1":"Saints","team2":"Falcons","oracle":"terra1fd0kaldhtlxpq624znwzqst98247q7wxuw6h29"}' --from test1 --chain-id=localterra --fees=10000uluna --gas=auto --broadcast-mode=block
 
-# Note CONTRACT_ADDRESS
-# terra1wgh6adn8geywx0v78zs9azrqtqdegufuegnwep
+# Note CONTRACT_ADDRESS from output
+# terra1sndgzq62wp23mv20ndr4sxg6k8xcsudsy87uph
 
 # verify instantiation
-terrad query wasm contract CONTRACT_ADDRESS
+terrad query wasm contract terra1sndgzq62wp23mv20ndr4sxg6k8xcsudsy87uph
 
-# propose bet
-sudo terrad tx wasm execute CONTRACTADDRESS '{"propose_bet":{"team":"Saints","amount":1000,"odds",-150}}' --from test1 --chain-id=localterra --fees=100000uluna --gas=auto --broadcast-mode=block
+# "test1" proposes bet for 300uluna
+sudo terrad tx wasm execute terra1sndgzq62wp23mv20ndr4sxg6k8xcsudsy87uph '{"propose_bet":{"team":"Saints","odds":-150}}' 300uluna --from test1 --chain-id=localterra --fees=100000uluna --gas=auto --broadcast-mode=block
 
 # query bets
-terrad query wasm contract-store CONTRACTADDRESS '{"get_bets":{}}'
+terrad query wasm contract-store terra1sndgzq62wp23mv20ndr4sxg6k8xcsudsy87uph '{"get_all_bets":{}}'
+
+# "test2" matches "test1" bet with 200uluna
+sudo terrad tx wasm execute terra1sndgzq62wp23mv20ndr4sxg6k8xcsudsy87uph '{"take_bet":{"host":"terra1dcegyrekltswvyy0xy69ydgxn9x8x32zdtapd8"}}' 200uluna --from test2 --chain-id=localterra --fees=100000uluna --gas=auto --broadcast-mode=block
 ```
 
 ## Prerequisites
