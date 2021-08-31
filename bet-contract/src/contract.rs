@@ -51,7 +51,6 @@ pub fn calc_match_amount(wager: Uint128, &odds: &i16) -> Uint128 {
         odds as u128 * factor
     };
     Uint128::new(payout as u128)
-https://finder.terra.money/bombay-10/address/terra1d6zmvzryxfk7937krgys7rqfuykva32j04mnds
     /*
     let factor = {
         if odds < 0 { 100 /odds.abs() }
