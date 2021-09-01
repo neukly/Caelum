@@ -62,7 +62,7 @@ export default function DisplayContracts({ title, filterEvent }) {
                 ({ host, team, odds, amount, match_amount, matched_bet }) => {
                   return (
                     <TableRow key={`${host}_${amount.amount}`}>
-                      <TableCell align="right">{host}</TableCell>
+                      <TableCell>{host}</TableCell>
                       <TableCell component="th" scope="row">
                         <Grid container direction="column">
                           <Grid item>{team}</Grid>
