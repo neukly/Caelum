@@ -11,7 +11,7 @@ import {
   Grid,
   Typography as MuiTypography,
 } from "@material-ui/core";
-import YourContracts from "../../components/YourContracts";
+import DisplayContracts from "../../components/DisplayContracts";
 import Stats from "./Stats";
 import PopularSports from "./PopularSports";
 import FeaturedCarousel from "./Featured";
@@ -100,7 +100,7 @@ function Title() {
         </Grid>
 
         <Grid item xs={12}>
-          <YourContracts title="Your Contracts" />
+          <DisplayContracts title="Contracts" />
         </Grid>
         <Grid item xs={12}>
           <SuggestedEvents />

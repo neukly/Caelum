@@ -26,10 +26,12 @@ import {
   UserDenied,
 } from "@terra-money/wallet-provider";
 import { MsgSend, StdFee } from "@terra-money/terra.js";
+import { createBet } from "../../utils/contracts";
 
 import Wallet from "../../components/Wallet";
 
 import { spacing } from "@material-ui/system";
+import DisplayContracts from "../../components/DisplayContracts";
 
 const Divider = styled(MuiDivider)(spacing);
 
@@ -73,9 +75,7 @@ function WalletFunctions() {
         ],
       })
       .then((nextTxResult) => {
-        console.log(nextTxResult);
         setTxResult(nextTxResult);
-        console.log();
         setOpen(true);
       })
       .catch((error) => {
@@ -163,6 +163,27 @@ function WalletFunctions() {
                   </React.Fragment>
                 }
               />
+            </CardContent>
+          </Card>
+        </Grid>
+        <Grid item xs={12}>
+          <Card>
+            <CardContent>
+              <Typography variant="h3" my={4}>
+                Create and Take Bets
+              </Typography>
+              <DisplayContracts />
+              <Box component="span" mx={3}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() =>
+                    createBet(connectedWallet, "Lakers", 200, 300000000, "uusd")
+                  }
+                >
+                  Create Contract
+                </Button>
+              </Box>
             </CardContent>
           </Card>
         </Grid>

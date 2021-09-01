@@ -22,7 +22,7 @@ const CardContent = styled(MuiCardContent)``;
 
 const StyledLink = styled(Link)`
   color: ${(props) => props.theme.palette.text.primary};
-  text-decoration: ${(props) => (props.title ? "none" : "")};
+  text-decoration: ${(props) => (props.underline ? "none" : "")};
 `;
 
 const CardMedia = styled(MuiCardMedia)`
@@ -35,7 +35,7 @@ function Event({ title, description, image, link }) {
       {image ? <CardMedia image={image} title="Contemplative Reptile" /> : null}
       <CardContent>
         <Typography gutterBottom variant="h4" component="h2">
-          <StyledLink title to={link}>
+          <StyledLink $underline to={link}>
             {title}
           </StyledLink>
         </Typography>
@@ -84,9 +84,6 @@ function Events() {
     }
     return array;
   }
-  const shuffle = shuffleArray(events);
-  console.log(shuffle);
-  console.log("testing");
 
   return (
     <>

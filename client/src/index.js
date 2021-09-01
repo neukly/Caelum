@@ -17,8 +17,8 @@ const mainnet = {
 
 const testnet = {
   name: "testnet",
-  chainID: "tequila-0004",
-  lcd: "https://tequila-lcd.terra.dev",
+  chainID: "bombay-10",
+  lcd: "https://bombay-lcd.terra.dev",
 };
 
 const walletConnectChainIds = {

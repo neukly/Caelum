@@ -7,7 +7,7 @@ import Comparison from "./Comparison";
 
 import useMediaQuery from "@material-ui/core/useMediaQuery";
 import { Card as MuiCard, Box, Grid, CardMedia } from "@material-ui/core";
-import YourContracts from "../../components/YourContracts";
+import DisplayContracts from "../../components/DisplayContracts";
 import SuggestedEvents from "../events/SuggestedEvents";
 
 const StyledImage = styled.img`
@@ -102,7 +102,7 @@ function Event() {
       <Box paddingX="20px">
         <Grid container spacing={4}>
           <Grid item xs={12}>
-            <YourContracts title="Available Contracts" />
+            <DisplayContracts title="Available Contracts" />
           </Grid>
         </Grid>
 

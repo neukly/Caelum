@@ -15,7 +15,6 @@ const Typography = styled(MuiTypography)(spacing);
 
 const StyledLink = styled(Link)`
   color: ${(props) => props.theme.palette.text.primary};
-  text-decoration: ${(props) => (props.title ? "none" : "")};
 `;
 
 const Card = styled(MuiCard)(spacing);
@@ -79,11 +78,11 @@ function PopularSports() {
     <React.Fragment>
       {popularSports.map(({ title, img }) => {
         return (
-          <Grid item xs={4}>
-            <StyledLink title to="/events/ufc256">
+          <Grid item xs={4} key={title}>
+            <StyledLink to="/events/ufc256">
               <TallCard>
                 <Box position="absolute" left="50%" bottom="40%">
-                  <StyledTypography textOverflow="ellipsis" noWrap variant="h3">
+                  <StyledTypography noWrap variant="h3">
                     {title}
                   </StyledTypography>
                 </Box>
