@@ -17,6 +17,7 @@ import {
   TableRow,
 } from "@material-ui/core";
 
+import { convertUusdToUst } from "../utils/conversions";
 import { spacing } from "@material-ui/system";
 import { useConnectedWallet } from "@terra-money/wallet-provider";
 
@@ -31,17 +32,16 @@ const Divider = styled(MuiDivider)(spacing);
 export default function DisplayContracts({ title, owner }) {
   const [allBets, setAllBets] = useState([]);
   const connectedWallet = useConnectedWallet();
-  const conversion = 1000000;
 
   useEffect(() => {
     const fetchData = async () => {
       if (connectedWallet) {
         let allBets = await getAllBets();
-        if (owner) {
-          allBets = allBets.filter(({ host }) => {
-            return host === connectedWallet.walletAddress;
-          });
-        }
+        allBets = allBets.filter(({ host }) => {
+          const isOwnedByWallet = host === connectedWallet.walletAddress;
+          return owner ? isOwnedByWallet : !isOwnedByWallet;
+        });
+
         setAllBets(allBets);
       }
     };
@@ -62,7 +62,7 @@ export default function DisplayContracts({ title, owner }) {
             <TableHead>
               <TableRow>
                 {!owner && <TableCell>Bet Creator</TableCell>}
-                <TableCell>Team</TableCell>
+                <TableCell align="center">Team</TableCell>
                 <TableCell align="center">Odds</TableCell>
                 <TableCell align="center">Offered Amount</TableCell>
                 <TableCell align="center">Match Amount</TableCell>
@@ -82,7 +82,7 @@ export default function DisplayContracts({ title, owner }) {
                   return (
                     <TableRow key={`${host}_${amount.amount}`}>
                       {!owner && <TableCell>{host}</TableCell>}
-                      <TableCell component="th" scope="row">
+                      <TableCell align="center" component="th" scope="row">
                         <Grid container direction="column">
                           <Grid item>{team}</Grid>
                           <Grid item>{team}</Grid>
@@ -90,10 +90,10 @@ export default function DisplayContracts({ title, owner }) {
                       </TableCell>
                       <TableCell align="center">{odds}</TableCell>
                       <TableCell align="center">
-                        {amount.amount / conversion} UST
+                        {convertUusdToUst(amount.amount)} UST
                       </TableCell>
                       <TableCell align="center">
-                        {match_amount.amount / conversion} UST
+                        {convertUusdToUst(match_amount.amount)} UST
                       </TableCell>
                       <TableCell align="center">
                         {matched_bet && <Chip label="N/A" />}
