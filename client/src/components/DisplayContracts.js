@@ -4,8 +4,8 @@ import { getAllBets, takeBet } from "../utils/contracts";
 
 import {
   Box,
-  Button,
   Card as MuiCard,
+  Chip as MuiChip,
   Divider as MuiDivider,
   Grid,
   Typography as MuiTypography,
@@ -20,21 +20,33 @@ import {
 import { spacing } from "@material-ui/system";
 import { useConnectedWallet } from "@terra-money/wallet-provider";
 
+const Chip = styled(MuiChip)(spacing);
 const Card = styled(MuiCard)(spacing);
-const Typography = styled(MuiTypography)(spacing);
+const SpacedTypography = styled(MuiTypography)(spacing);
+const Typography = styled(SpacedTypography)`
+  width: 100%;
+`;
 const Divider = styled(MuiDivider)(spacing);
 
-export default function DisplayContracts({ title, filterEvent }) {
+export default function DisplayContracts({ title, owner }) {
   const [allBets, setAllBets] = useState([]);
   const connectedWallet = useConnectedWallet();
+  const conversion = 1000000;
 
   useEffect(() => {
     const fetchData = async () => {
-      const allBets = await getAllBets();
-      setAllBets(allBets);
+      if (connectedWallet) {
+        let allBets = await getAllBets();
+        if (owner) {
+          allBets = allBets.filter(({ host }) => {
+            return host === connectedWallet.walletAddress;
+          });
+        }
+        setAllBets(allBets);
+      }
     };
     fetchData();
-  }, []);
+  }, [owner, connectedWallet]);
 
   return (
     <Box my={4}>
@@ -49,39 +61,48 @@ export default function DisplayContracts({ title, filterEvent }) {
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell>Bet Creator</TableCell>
+                {!owner && <TableCell>Bet Creator</TableCell>}
                 <TableCell>Team</TableCell>
-                <TableCell align="right">Odds</TableCell>
-                <TableCell align="right">Amount</TableCell>
-                <TableCell align="right">Match Amount</TableCell>
-                <TableCell align="right">Matched?</TableCell>
+                <TableCell align="center">Odds</TableCell>
+                <TableCell align="center">Offered Amount</TableCell>
+                <TableCell align="center">Match Amount</TableCell>
+                <TableCell align="center">Available?</TableCell>
               </TableRow>
             </TableHead>
+            {allBets.length === 0 && (
+              <TableCell colSpan={6}>
+                <Typography variant="h4" align="center" padding={8}>
+                  No bets placed
+                </Typography>
+              </TableCell>
+            )}
             <TableBody>
               {allBets.map(
                 ({ host, team, odds, amount, match_amount, matched_bet }) => {
                   return (
                     <TableRow key={`${host}_${amount.amount}`}>
-                      <TableCell>{host}</TableCell>
+                      {!owner && <TableCell>{host}</TableCell>}
                       <TableCell component="th" scope="row">
                         <Grid container direction="column">
                           <Grid item>{team}</Grid>
                           <Grid item>{team}</Grid>
                         </Grid>
                       </TableCell>
-                      <TableCell align="right">{odds}</TableCell>
-                      <TableCell align="right">
-                        {amount.amount} {amount.denom}
+                      <TableCell align="center">{odds}</TableCell>
+                      <TableCell align="center">
+                        {amount.amount / conversion} UST
                       </TableCell>
-                      <TableCell align="right">
-                        {match_amount.amount} {match_amount.denom}
+                      <TableCell align="center">
+                        {match_amount.amount / conversion} UST
                       </TableCell>
-                      <TableCell align="right">
-                        {matched_bet ? (
-                          "true"
-                        ) : (
-                          <Button
-                            variant="contained"
+                      <TableCell align="center">
+                        {matched_bet && <Chip label="N/A" />}
+                        {!matched_bet && owner && (
+                          <Chip label="Waiting for match" />
+                        )}
+                        {!matched_bet && !owner && (
+                          <Chip
+                            label="Bet!"
                             color="primary"
                             onClick={() =>
                               takeBet(
@@ -91,9 +112,7 @@ export default function DisplayContracts({ title, filterEvent }) {
                                 match_amount.denom
                               )
                             }
-                          >
-                            take bet
-                          </Button>
+                          />
                         )}
                       </TableCell>
                     </TableRow>
