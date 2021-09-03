@@ -7,7 +7,7 @@ use cosmwasm_std::{to_binary, Binary, Order};
 use crate::error::ContractError;
 use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg};
 use crate::msg::{AdminResponse, BetsResponse};
-use crate::state::{STATE, BETS, ADMIN, State, Data, Team};
+use crate::state::{STATE, BETS, ADMIN, State, Data, Team, GameResult};
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(mut deps: DepsMut, _env: Env, info: MessageInfo, msg: InstantiateMsg,)
@@ -28,7 +28,7 @@ pub fn instantiate(mut deps: DepsMut, _env: Env, info: MessageInfo, msg: Instant
     ADMIN.set(deps.branch(), Some(info.sender.clone()))?;
     Ok(Response::new()
         .add_attribute("method", "instantiate")
-        .add_attribute("owner", info.sender))
+        .add_attribute("admin", info.sender))
 }
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -72,7 +72,7 @@ pub fn propose_bet(deps: DepsMut, info: MessageInfo, team: String, odds: i16)
     // store proposal in BETS, at self selected odds for the wager amount
     let data = Data {
         host: info.sender.clone(),
-        team: if team == "home" { Team::home } else { Team::away },
+        team: if team == "home" { Team::Home } else { Team::Away },
         odds: odds,
         amount: coins[0].clone(),
         match_amount: Coin {
@@ -117,15 +117,59 @@ pub fn take_bet(deps: DepsMut, info: MessageInfo, host: String )
     Ok(Response::new().add_attribute("method", "take_bet"))
     }
 
+pub fn determine_victor( homeScore: i16, awayScore: i16 ) -> GameResult {
+    let result: GameResult = if homeScore > awayScore {
+        GameResult::HomeWins
+    } else if homeScore < awayScore {
+        GameResult::AwayWins
+    } else {
+        GameResult::Tie
+    };
+    result
+}
+fn pay_out(deps: DepsMut, result: GameResult) -> Result<(),StdError> {
+    let all: StdResult<Vec<_>> = BETS
+        .range(deps.storage, None, None, Order::Ascending)
+        .collect();
+    for (_key, data) in all? {
+        if data.matcher == None {
+            // return deposit data.amount to data.host
+        } else {
+            match &result {
+                HomeWins => {
+                    if data.team == Team::Home {
+                        // pay data.host
+                    } else {
+                        // pay data.matcher
+                    }
+                },
+                AwayWins => {
+                    if data.team == Team::Away {
+                        // pay data.host
+                    } else {
+                        // pay data.matcher
+                    }
+                },
+                Tie => {
+                    // return deposits to data.host and data.matcher
+                },
+            };
+        };
+        BETS.remove(deps.storage, data.host);
+    }
+    Ok(())
+}
+
 pub fn settle_up(deps: DepsMut, info: MessageInfo, homeScore: i16, awayScore: i16 )
 -> Result<Response, ContractError> {
     // PLACEHOLDER
     // check that sender is Oracle or Admin
-    // determine victor
-    // iterate through bets
-    // pay out victor
-    drop(deps);
-    drop(info);
+    if ADMIN.is_admin(deps.as_ref(), &info.sender.clone()).ok().unwrap() {
+        let result = determine_victor(homeScore, awayScore);
+        pay_out(deps, result);
+    } else {
+        return Err(ContractError::Unauthorized {})
+    }
     Ok(Response::new().add_attribute("method", "settle_up"))
 }
 
@@ -255,7 +299,7 @@ mod tests {
         let value: BetsResponse = from_binary(&res).unwrap();
         let test_data = Data {
             host: Addr::unchecked("bob"),
-            team: Team::home,
+            team: Team::Home,
             odds: -150,
             amount: Coin{ amount: Uint128::new(300), denom: "token".to_string()},
             match_amount: Coin {
@@ -274,7 +318,7 @@ mod tests {
         let value: BetsResponse = from_binary(&res).unwrap();
         let test_data = Data {
             host: Addr::unchecked("bob"),
-            team: Team::home,
+            team: Team::Home,
             odds: -150,
             amount: Coin{ amount: Uint128::new(300), denom: "token".to_string()},
             match_amount: Coin {
@@ -314,7 +358,7 @@ mod tests {
         let value: BetsResponse = from_binary(&res).unwrap();
         let test_data = Data {
             host: Addr::unchecked("bob"),
-            team: Team::home,
+            team: Team::Home,
             odds: -150,
             amount: Coin{ amount: Uint128::new(300), denom: "token".to_string()},
             match_amount: Coin {

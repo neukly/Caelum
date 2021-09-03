@@ -7,10 +7,16 @@ use cw_controllers::Admin;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub enum Team {
-    home,
-    away,
+    Home,
+    Away,
 }
 
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub enum GameResult {
+    HomeWins,
+    AwayWins,
+    Tie
+}
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct State {
     pub gamekey: u32,
