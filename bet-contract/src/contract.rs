@@ -27,6 +27,7 @@ pub fn instantiate(mut deps: DepsMut, _env: Env, info: MessageInfo, msg: Instant
         admin: info.sender.clone()
     };
     STATE.save(deps.storage, &state)?;
+    println!("{:?}",_env.contract.address);
     Ok(Response::new()
         .add_attribute("method", "instantiate")
         .add_attribute("admin", info.sender))
@@ -128,50 +129,60 @@ pub fn determine_victor( homeScore: i16, awayScore: i16 ) -> GameResult {
     };
     result
 }
-fn send_tokens(to_address: Addr, amount: Vec<Coin>) -> Result<Response, StdError> {
-    let msg = BankMsg::Send{
+fn send_tokens(to_address: Addr, amount: Vec<Coin>) -> Response {
+    let cosmmsg = CosmosMsg::Bank(BankMsg::Send{
         to_address: to_address.to_string(),
         amount: amount.clone()
-    };
-    Ok(Response::new().add_message(msg).add_attribute("method","send_tokens"))
+    });
+    Response::new()
+        .add_message(cosmmsg)
+        .add_attribute("method","send_tokens")
+        .add_attribute("action","approve")
+        .add_attribute("to", to_address.clone())
 }
-fn refund_tokens(host: Addr, matcher: Addr, amount: Vec<Coin>, match_amount: Vec<Coin>) -> Result<Response, StdError> {
-    let msg1= BankMsg::Send{
+fn refund_tokens(host: Addr, matcher: Addr, amount: Vec<Coin>, match_amount: Vec<Coin>) -> Response {
+    let msg1= CosmosMsg::Bank(BankMsg::Send{
         to_address: host.to_string(),
         amount: amount.clone()
-    };
-    let msg2= BankMsg::Send{
+    });
+    let msg2= CosmosMsg::Bank(BankMsg::Send{
         to_address: matcher.to_string(),
         amount: match_amount.clone()
-    };
-    Ok(Response::new().add_message(msg1).add_message(msg2).add_attribute("method","refund_tokens"))
+    });
+    Response::new()
+        .add_message(msg1)
+        .add_message(msg2)
+        .add_attribute("method","refund_tokens")
+        .add_attribute("action","approve")
+        .add_attribute("to","both")
 }
 fn pay_out_bet(deps: DepsMut, data: Data, result: GameResult) -> Result<Response, StdError> {
-    let res = match data.matcher {
+    match data.matcher {
         None => {
-            send_tokens(data.host.clone(), vec![data.amount])
+            Ok(send_tokens(data.host.clone(), vec![data.amount]))
         },
         Some(matcher) => {
             match &result {
                 GameResult::HomeWins => {
-                    match data.team {
-                        Team::Home => { send_tokens(data.host.clone(),vec![data.amount,data.match_amount]) },
-                        Team::Away => { send_tokens(matcher,vec![data.amount,data.match_amount]) },
-                    }
+                    let winner = match data.team {
+                        Team::Home => { data.host.clone() },
+                        Team::Away => { matcher },
+                    };
+                    Ok(send_tokens(winner,vec![data.amount,data.match_amount]))
                 },
                 GameResult::AwayWins => {
-                    match data.team {
-                        Team::Away => { send_tokens(data.host.clone(),vec![data.amount,data.match_amount]) },
-                        Team::Home => { send_tokens(matcher,vec![data.amount,data.match_amount]) },
-                    }
+                    let winner = match data.team {
+                        Team::Away => { data.host.clone() },
+                        Team::Home => { matcher },
+                    };
+                    Ok(send_tokens(winner,vec![data.amount,data.match_amount]))
                 },
                 GameResult::Tie => {
-                    refund_tokens(data.host.clone(),matcher,vec![data.amount],vec![data.match_amount])
+                    Ok(refund_tokens(data.host.clone(),matcher,vec![data.amount],vec![data.match_amount]))
                 },
             }
         },
-    };
-    res
+    }
 }
 pub fn settle_up(mut deps: DepsMut, info: MessageInfo, homeScore: i16, awayScore: i16 )
 -> Result<Response, ContractError> {
