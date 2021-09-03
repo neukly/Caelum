@@ -6,7 +6,7 @@ use cosmwasm_std::{Response, StdResult, StdError};
 use cosmwasm_std::{to_binary, Binary, Order};
 use crate::error::ContractError;
 use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg};
-use crate::msg::{AdminResponse, BetsResponse};
+use crate::msg::{AdminResponse, BetsResponse, MatchupResponse};
 use crate::state::{STATE, BETS, ADMIN, State, Data, Team, GameResult};
 
 #[cfg_attr(not(feature = "library"), entry_point)]
@@ -182,6 +182,7 @@ pub fn query(deps: Deps, _env: Env, msg: QueryMsg ) -> StdResult<Binary> {
         QueryMsg::GetBetByHost { host } => to_binary(&query_host(deps, host)?),
         QueryMsg::GetBetsByOpp { opponent } => to_binary(&query_opp(deps, opponent)?),
         QueryMsg::GetAdmin {} => to_binary(&query_admin(deps)?),
+        QueryMsg::GetMatchup {} => to_binary(&query_state(deps)?),
     }
 }
 fn bets_to_vec(deps: Deps) -> Result<Vec<Data>, StdError> {
@@ -191,6 +192,16 @@ fn bets_to_vec(deps: Deps) -> Result<Vec<Data>, StdError> {
     let mut results: Vec<Data> = Vec::new();
     for (_key, data) in all? { results.push(data); };
     return Ok(results)
+}
+fn query_state(deps: Deps) -> Result<MatchupResponse, StdError> {
+    let state = STATE.load(deps.storage)?;
+    return Ok(MatchupResponse{
+        gamekey: state.gamekey,
+        hometeam: state.hometeam,
+        awayteam: state.awayteam,
+        datetime: state.datetime,
+        oracle: state.oracle,
+    })
 }
 fn query_bets(deps: Deps) -> Result<BetsResponse, StdError> {
     let all: Vec<Data> = bets_to_vec(deps)?;

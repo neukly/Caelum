@@ -30,6 +30,7 @@ pub enum QueryMsg {
     GetBetByHost { host: String },
     GetBetsByOpp { opponent: String },
     GetAdmin {},
+    GetMatchup {},
 }
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct BetsResponse {
@@ -38,4 +39,13 @@ pub struct BetsResponse {
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub struct AdminResponse {
     pub admin: Addr
+}
+
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
+pub struct MatchupResponse {
+    pub gamekey: u32,
+    pub hometeam: String,
+    pub awayteam: String,
+    pub datetime: String,
+    pub oracle: Addr
 }
