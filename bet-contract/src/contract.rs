@@ -133,60 +133,47 @@ fn send_tokens(to_address: Addr, amount: Vec<Coin>) -> Result<Response, StdError
         to_address: to_address.to_string(),
         amount: amount.clone()
     };
-    Ok(Response::new().add_message(msg).add_attribute("method","payout"))
+    Ok(Response::new().add_message(msg).add_attribute("method","send_tokens"))
 }
-fn pay_out(deps: DepsMut, result: GameResult) -> Result<(),StdError> {
-    let all: StdResult<Vec<_>> = BETS
-        .range(deps.storage, None, None, Order::Ascending)
-        .collect();
-    for (_key, data) in all? {
-        match data.matcher {
-            None => {
-                send_tokens(data.host.clone(), vec![data.amount]);
-                ()
-            },
-            Some(matcher) => {
-                match &result {
-                    HomeWins => {
-                        match data.team {
-                            Home => {
-                                send_tokens(data.host.clone(),vec![data.amount,data.match_amount]);
-                                ()
-                            },
-                            Away => {
-                                send_tokens(matcher,vec![data.amount,data.match_amount]);
-                                ()
-                            },
-                        };
-                        ()
-                    },
-                    AwayWins => {
-                        match data.team {
-                            Away => {
-                                send_tokens(data.host.clone(),vec![data.amount,data.match_amount]);
-                                ()
-                            },
-                            Home => {
-                                send_tokens(matcher,vec![data.amount,data.match_amount]);
-                                ()
-                            },
-                        };
-                        ()
-                    },
-                    Tie => {
-                        // return deposits to data.host and data.matcher
-                        send_tokens(data.host.clone(),vec![data.amount]);
-                        send_tokens(matcher,vec![data.match_amount]);
-                        ()
-                    },
-                };
-            },
-        };
-        BETS.remove(deps.storage, data.host);
+fn refund_tokens(host: Addr, matcher: Addr, amount: Vec<Coin>, match_amount: Vec<Coin>) -> Result<Response, StdError> {
+    let msg1= BankMsg::Send{
+        to_address: host.to_string(),
+        amount: amount.clone()
     };
-    Ok(())
+    let msg2= BankMsg::Send{
+        to_address: matcher.to_string(),
+        amount: match_amount.clone()
+    };
+    Ok(Response::new().add_message(msg1).add_message(msg2).add_attribute("method","refund_tokens"))
 }
-pub fn settle_up(deps: DepsMut, info: MessageInfo, homeScore: i16, awayScore: i16 )
+fn pay_out_bet(deps: DepsMut, data: Data, result: GameResult) -> Result<Response, StdError> {
+    let res = match data.matcher {
+        None => {
+            send_tokens(data.host.clone(), vec![data.amount])
+        },
+        Some(matcher) => {
+            match &result {
+                GameResult::HomeWins => {
+                    match data.team {
+                        Team::Home => { send_tokens(data.host.clone(),vec![data.amount,data.match_amount]) },
+                        Team::Away => { send_tokens(matcher,vec![data.amount,data.match_amount]) },
+                    }
+                },
+                GameResult::AwayWins => {
+                    match data.team {
+                        Team::Away => { send_tokens(data.host.clone(),vec![data.amount,data.match_amount]) },
+                        Team::Home => { send_tokens(matcher,vec![data.amount,data.match_amount]) },
+                    }
+                },
+                GameResult::Tie => {
+                    refund_tokens(data.host.clone(),matcher,vec![data.amount],vec![data.match_amount])
+                },
+            }
+        },
+    };
+    res
+}
+pub fn settle_up(mut deps: DepsMut, info: MessageInfo, homeScore: i16, awayScore: i16 )
 -> Result<Response, ContractError> {
     // PLACEHOLDER
     // check that sender is Oracle or Admin
@@ -195,7 +182,13 @@ pub fn settle_up(deps: DepsMut, info: MessageInfo, homeScore: i16, awayScore: i1
         return Err(ContractError::Unauthorized {})
     } else {
         let result = determine_victor(homeScore, awayScore);
-        pay_out(deps, result);
+        let bets: StdResult<Vec<_>> = BETS
+            .range(deps.as_ref().storage, None, None, Order::Ascending)
+            .collect();
+        for (_key, data) in bets? {
+            let res = pay_out_bet(deps.branch(), data.clone(), result.clone());
+            BETS.remove(deps.storage, data.host);
+        }
     };
     Ok(Response::new().add_attribute("method", "settle_up"))
 }
@@ -280,7 +273,8 @@ fn query_admin(deps: Deps ) -> Result<AdminResponse, StdError> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info, BankQuerier};
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info, BankQuerier
+    };
     use cosmwasm_std::{coins, Coin, Addr, QuerierWrapper};
     use cosmwasm_std::Uint128;
     use cosmwasm_std::from_binary;
