@@ -12,7 +12,40 @@ import {
   UserDenied,
 } from "@terra-money/wallet-provider";
 
-const contractAddress = "terra15gh7jw4ywqe936dzgn8czyyzlmu2x5wt5l7wxg";
+export const contractAddress = "terra1mdaug0654jwpsfmpwrshyf4xs2x3avf9rnr8zv";
+
+function handleErrorMessage(error) {
+  if (error instanceof UserDenied) {
+    return Error("User Denied");
+  } else if (error instanceof CreateTxFailed) {
+    return Error("Create Tx Failed: " + error.message);
+  } else if (error instanceof TxFailed) {
+    return Error("Tx Failed: " + error.message);
+  } else if (error instanceof Timeout) {
+    return Error("Timeout");
+  } else if (error instanceof TxUnspecifiedError) {
+    return Error("Unspecified Error: " + error.message);
+  } else {
+    return Error(
+      "Unknown Error: " +
+        (error instanceof Error ? error.message : String(error))
+    );
+  }
+}
+
+export async function getMatchup(contract) {
+  const terra = new LCDClient({
+    chainID: "bombay-10",
+    URL: "https://bombay-lcd.terra.dev",
+  });
+
+  // { hometeam, awayteam, gamekey, datetime, oracle }
+  const result = await terra.wasm.contractQuery(
+    contract,
+    { get_matchup: {} } // query msg
+  );
+  return result;
+}
 
 export async function getAllBets() {
   const terra = new LCDClient({
@@ -29,6 +62,7 @@ export async function getAllBets() {
 }
 
 export async function takeBet(connectedWallet, host, amount, denom) {
+  console.log(host, amount, denom);
   if (!connectedWallet) {
     return alert("Please connect your wallet first");
   }
@@ -62,27 +96,11 @@ export async function takeBet(connectedWallet, host, amount, denom) {
 
     return result;
   } catch (error) {
-    console.log(error);
-    if (error instanceof UserDenied) {
-      return Error("User Denied");
-    } else if (error instanceof CreateTxFailed) {
-      return Error("Create Tx Failed: " + error.message);
-    } else if (error instanceof TxFailed) {
-      return Error("Tx Failed: " + error.message);
-    } else if (error instanceof Timeout) {
-      return Error("Timeout");
-    } else if (error instanceof TxUnspecifiedError) {
-      return Error("Unspecified Error: " + error.message);
-    } else {
-      return Error(
-        "Unknown Error: " +
-          (error instanceof Error ? error.message : String(error))
-      );
-    }
+    return handleErrorMessage(error);
   }
 }
 
-export async function createBet(connectedWallet, team, odds, amount, denom) {
+export async function proposeBet(connectedWallet, team, odds, amount, denom) {
   if (!connectedWallet) {
     return alert("Please connect your wallet first");
   }
@@ -92,6 +110,7 @@ export async function createBet(connectedWallet, team, odds, amount, denom) {
     return;
   }
 
+  console.log(team, odds, amount, denom);
   try {
     const result = await connectedWallet.post({
       fee: new StdFee(1000000, `${amount}${denom}`),
@@ -118,22 +137,6 @@ export async function createBet(connectedWallet, team, odds, amount, denom) {
 
     return result;
   } catch (error) {
-    console.log(error);
-    if (error instanceof UserDenied) {
-      return Error("User Denied");
-    } else if (error instanceof CreateTxFailed) {
-      return Error("Create Tx Failed: " + error.message);
-    } else if (error instanceof TxFailed) {
-      return Error("Tx Failed: " + error.message);
-    } else if (error instanceof Timeout) {
-      return Error("Timeout");
-    } else if (error instanceof TxUnspecifiedError) {
-      return Error("Unspecified Error: " + error.message);
-    } else {
-      return Error(
-        "Unknown Error: " +
-          (error instanceof Error ? error.message : String(error))
-      );
-    }
+    return handleErrorMessage(error);
   }
 }
