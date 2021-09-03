@@ -4,10 +4,11 @@ use cosmwasm_std::{Uint128, Coin};
 use cosmwasm_std::{Deps, DepsMut, Env, Addr, MessageInfo};
 use cosmwasm_std::{Response, StdResult, StdError};
 use cosmwasm_std::{to_binary, Binary, Order};
+use cosmwasm_std::{CosmosMsg, SubMsg, BankMsg, attr};
 use crate::error::ContractError;
 use crate::msg::{InstantiateMsg, ExecuteMsg, QueryMsg};
 use crate::msg::{AdminResponse, BetsResponse, MatchupResponse};
-use crate::state::{STATE, BETS, ADMIN, State, Data, Team, GameResult};
+use crate::state::{STATE, BETS, State, Data, Team, GameResult};
 
 #[cfg_attr(not(feature = "library"), entry_point)]
 pub fn instantiate(mut deps: DepsMut, _env: Env, info: MessageInfo, msg: InstantiateMsg,)
@@ -23,9 +24,9 @@ pub fn instantiate(mut deps: DepsMut, _env: Env, info: MessageInfo, msg: Instant
         oracle: checked,
         hometeam: msg.hometeam,
         awayteam: msg.awayteam,
+        admin: info.sender.clone()
     };
     STATE.save(deps.storage, &state)?;
-    ADMIN.set(deps.branch(), Some(info.sender.clone()))?;
     Ok(Response::new()
         .add_attribute("method", "instantiate")
         .add_attribute("admin", info.sender))
@@ -127,49 +128,75 @@ pub fn determine_victor( homeScore: i16, awayScore: i16 ) -> GameResult {
     };
     result
 }
+fn send_tokens(to_address: Addr, amount: Vec<Coin>) -> Result<Response, StdError> {
+    let msg = BankMsg::Send{
+        to_address: to_address.to_string(),
+        amount: amount.clone()
+    };
+    Ok(Response::new().add_message(msg).add_attribute("method","payout"))
+}
 fn pay_out(deps: DepsMut, result: GameResult) -> Result<(),StdError> {
     let all: StdResult<Vec<_>> = BETS
         .range(deps.storage, None, None, Order::Ascending)
         .collect();
     for (_key, data) in all? {
-        if data.matcher == None {
-            // return deposit data.amount to data.host
-        } else {
-            match &result {
-                HomeWins => {
-                    if data.team == Team::Home {
-                        // pay data.host
-                    } else {
-                        // pay data.matcher
-                    }
-                },
-                AwayWins => {
-                    if data.team == Team::Away {
-                        // pay data.host
-                    } else {
-                        // pay data.matcher
-                    }
-                },
-                Tie => {
-                    // return deposits to data.host and data.matcher
-                },
-            };
+        match data.matcher {
+            None => {
+                send_tokens(data.host.clone(), vec![data.amount]);
+                ()
+            },
+            Some(matcher) => {
+                match &result {
+                    HomeWins => {
+                        match data.team {
+                            Home => {
+                                send_tokens(data.host.clone(),vec![data.amount,data.match_amount]);
+                                ()
+                            },
+                            Away => {
+                                send_tokens(matcher,vec![data.amount,data.match_amount]);
+                                ()
+                            },
+                        };
+                        ()
+                    },
+                    AwayWins => {
+                        match data.team {
+                            Away => {
+                                send_tokens(data.host.clone(),vec![data.amount,data.match_amount]);
+                                ()
+                            },
+                            Home => {
+                                send_tokens(matcher,vec![data.amount,data.match_amount]);
+                                ()
+                            },
+                        };
+                        ()
+                    },
+                    Tie => {
+                        // return deposits to data.host and data.matcher
+                        send_tokens(data.host.clone(),vec![data.amount]);
+                        send_tokens(matcher,vec![data.match_amount]);
+                        ()
+                    },
+                };
+            },
         };
         BETS.remove(deps.storage, data.host);
-    }
+    };
     Ok(())
 }
-
 pub fn settle_up(deps: DepsMut, info: MessageInfo, homeScore: i16, awayScore: i16 )
 -> Result<Response, ContractError> {
     // PLACEHOLDER
     // check that sender is Oracle or Admin
-    if ADMIN.is_admin(deps.as_ref(), &info.sender.clone()).ok().unwrap() {
+    let state = STATE.load(deps.storage)?;
+    if state.admin != info.sender {
+        return Err(ContractError::Unauthorized {})
+    } else {
         let result = determine_victor(homeScore, awayScore);
         pay_out(deps, result);
-    } else {
-        return Err(ContractError::Unauthorized {})
-    }
+    };
     Ok(Response::new().add_attribute("method", "settle_up"))
 }
 
@@ -246,19 +273,15 @@ fn query_opp(deps: Deps, opponent: String) -> Result<BetsResponse, StdError> {
     return Ok(BetsResponse{ bets: results })
 }
 fn query_admin(deps: Deps ) -> Result<AdminResponse, StdError> {
-    let administrator = ADMIN.get(deps)?;
-    let admin = match administrator {
-        Some(a) => a,
-        None => return Ok(AdminResponse{admin: Addr::unchecked("")}),
-    };
-    Ok(AdminResponse{ admin: admin })
+    let state = STATE.load(deps.storage)?;
+    Ok(AdminResponse{ admin: state.admin })
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
-    use cosmwasm_std::{coins, Coin, Addr};
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info, BankQuerier};
+    use cosmwasm_std::{coins, Coin, Addr, QuerierWrapper};
     use cosmwasm_std::Uint128;
     use cosmwasm_std::from_binary;
 
@@ -394,4 +417,86 @@ mod tests {
         };
     }
 
+    #[test]
+    fn test_settle() {
+        let mut deps = mock_dependencies(&[]);
+        let mut deps = mock_dependencies(&[]);
+        let info = mock_info("creator", &coins(1000, "earth"));
+        let msg = InstantiateMsg {
+            gamekey: 202110133 as u32,
+            datetime: "2021-09-09T20:20:00".to_string(),
+            hometeam: "TB".to_string(),
+            awayteam: "DAL".to_string(),
+            oracle: "Oracle Addr".to_string(),
+        };
+        let res = instantiate(deps.as_mut(), mock_env(), info, msg).unwrap();
+        assert_eq!(0, res.messages.len());
+
+        // Propose a bet
+        let info = mock_info("bob", &coins(300, "token".to_string()));
+        let msg = ExecuteMsg::ProposeBet {
+            team: "home".to_string(),
+            odds: -150,
+        };
+        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // Match bet
+        let info = mock_info("alice", &coins(200, "token".to_string()));
+        let msg = ExecuteMsg::TakeBet {
+            host: "bob".to_string()
+        };
+        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // query administrator
+        let msg = QueryMsg::GetAdmin {};
+        let res = query(deps.as_ref(), mock_env(), msg).unwrap();
+        let value: AdminResponse = from_binary(&res).unwrap();
+        assert_eq!(Addr::unchecked("creator"),value.admin);
+
+        // Settle up
+        let info = mock_info("creator", &coins(0,"token".to_string()));
+        let msg = ExecuteMsg::SettleUp {
+            homeScore: 21,
+            awayScore: 7,
+        };
+        let res = execute(deps.as_mut(), mock_env().clone(), info, msg);
+
+        // query BETS
+        let msg = QueryMsg::GetAllBets {};
+        let res = query(deps.as_ref(), mock_env(), msg).unwrap();
+        let value: BetsResponse = from_binary(&res).unwrap();
+        let empty: Vec<Data> = Vec::new();
+        assert_eq!(empty,value.bets);
+    }
+    /*
+    #[test]
+    fn test_settle_up() {
+        let mut deps = mock_dependencies(&[]);
+        test_initialize();
+
+        // Propose a bet
+        let info = mock_info("bob", &coins(300, "UST".to_string()));
+        let msg = ExecuteMsg::ProposeBet {
+            team: "home".to_string(),
+            odds: -150,
+        };
+        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // Match bet
+        let info = mock_info("alice", &coins(200, "UST".to_string()));
+        let msg = ExecuteMsg::TakeBet {
+            host: "bob".to_string()
+        };
+        let _res = execute(deps.as_mut(), mock_env(), info, msg).unwrap();
+
+        // Settle up
+        let info = mock_info("creator", &coins(0,"token".to_string()));
+        let msg = ExecuteMsg::SettleUp {
+            homeScore: 21,
+            awayScore: 7,
+        };
+        let _res = execute(deps.as_mut(), mock_env(), info, msg);
+
+    }
+    */
 }

@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 
 use cosmwasm_std::{Addr,Coin};
 use cw_storage_plus::{Item, Map};
-use cw_controllers::Admin;
 
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema)]
 pub enum Team {
@@ -24,6 +23,7 @@ pub struct State {
     pub hometeam: String,
     pub awayteam: String,
     pub oracle: Addr,
+    pub admin: Addr
 }
 
 #[derive(Serialize, Deserialize, PartialEq, Debug, Clone, JsonSchema)]
@@ -36,6 +36,5 @@ pub struct Data {
     pub matcher: Option<Addr>,
 }
 
-pub const ADMIN: Admin = Admin::new("admin");
 pub const STATE: Item<State> = Item::new("state");
 pub const BETS: Map<Addr, Data> = Map::new("bets");
